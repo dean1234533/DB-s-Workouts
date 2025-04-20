@@ -1,0 +1,882 @@
+// Nutrition Tracker App
+// index.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nutrition Tracker</title>
+  <style>
+    :root {
+      --primary: #4CAF50;
+      --primary-dark: #388E3C;
+      --accent: #FF9800;
+      --light-bg: #f9f9f9;
+      --text: #333;
+      --light-text: #666;
+      --border: #ddd;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    body {
+      background-color: var(--light-bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    header {
+      background-color: var(--primary);
+      color: white;
+      padding: 15px 0;
+      margin-bottom: 30px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    
+    h1, h2, h3 {
+      margin-bottom: 20px;
+    }
+    
+    h1 {
+      text-align: center;
+    }
+    
+    .dashboard {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 30px;
+    }
+    
+    @media (max-width: 768px) {
+      .dashboard {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    .card {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    
+    .summary-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+    
+    .stat-card {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      padding: 15px;
+      text-align: center;
+    }
+    
+    .stat-value {
+      font-size: 24px;
+      font-weight: bold;
+      color: var(--primary);
+      margin: 10px 0;
+    }
+    
+    .stat-label {
+      color: var(--light-text);
+      font-size: 14px;
+    }
+    
+    .progress-container {
+      height: 10px;
+      background-color: #f0f0f0;
+      border-radius: 5px;
+      margin-top: 5px;
+      overflow: hidden;
+    }
+    
+    .progress-bar {
+      height: 100%;
+      background-color: var(--primary);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+    
+    .progress-bar.protein {
+      background-color: #2196F3;
+    }
+    
+    .progress-bar.carbs {
+      background-color: #FF9800;
+    }
+    
+    .progress-bar.fat {
+      background-color: #F44336;
+    }
+    
+    form {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    
+    .form-group {
+      margin-bottom: 15px;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+    
+    input, select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-size: 16px;
+    }
+    
+    button {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 12px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    
+    button:hover {
+      background-color: var(--primary-dark);
+    }
+    
+    .food-log {
+      margin-top: 30px;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+    
+    th, td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    th {
+      background-color: #f5f5f5;
+      font-weight: 500;
+    }
+    
+    tr:hover {
+      background-color: #f9f9f9;
+    }
+    
+    .actions {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .btn-delete {
+      background-color: #f44336;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 5px 10px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    
+    .date-selector {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    
+    .date-selector button {
+      background-color: transparent;
+      color: var(--primary);
+      border: 1px solid var(--primary);
+      padding: 8px 15px;
+    }
+    
+    .chart-container {
+      height: 300px;
+      margin-top: 30px;
+    }
+    
+    #nutrientChart {
+      width: 100%;
+      height: 100%;
+    }
+    
+    .meal-section {
+      margin-bottom: 20px;
+    }
+    
+    .meal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .meal-header h3 {
+      margin: 0;
+    }
+    
+    .add-btn {
+      background-color: var(--accent);
+      padding: 8px 15px;
+      font-size: 14px;
+    }
+    
+    .search-container {
+      margin-bottom: 20px;
+    }
+    
+    #searchResults {
+      max-height: 300px;
+      overflow-y: auto;
+      margin-top: 10px;
+    }
+    
+    .result-item {
+      padding: 10px;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+    }
+    
+    .result-item:hover {
+      background-color: #f0f0f0;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <h1>Nutrition Tracker</h1>
+    </div>
+  </header>
+  
+  <div class="container">
+    <div class="date-selector">
+      <button id="prevDay">&lt; Previous Day</button>
+      <h2 id="currentDate">Today</h2>
+      <button id="nextDay">Next Day &gt;</button>
+    </div>
+    
+    <div class="summary-stats">
+      <div class="stat-card">
+        <div class="stat-label">Calories</div>
+        <div class="stat-value" id="totalCalories">0</div>
+        <div class="stat-label">of <span id="calorieGoal">2000</span></div>
+        <div class="progress-container">
+          <div class="progress-bar" id="calorieProgress"></div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Protein</div>
+        <div class="stat-value" id="totalProtein">0g</div>
+        <div class="stat-label">of <span id="proteinGoal">150g</span></div>
+        <div class="progress-container">
+          <div class="progress-bar protein" id="proteinProgress"></div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Carbs</div>
+        <div class="stat-value" id="totalCarbs">0g</div>
+        <div class="stat-label">of <span id="carbGoal">250g</span></div>
+        <div class="progress-container">
+          <div class="progress-bar carbs" id="carbProgress"></div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Fat</div>
+        <div class="stat-value" id="totalFat">0g</div>
+        <div class="stat-label">of <span id="fatGoal">70g</span></div>
+        <div class="progress-container">
+          <div class="progress-bar fat" id="fatProgress"></div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="dashboard">
+      <div class="left-panel">
+        <div class="card">
+          <h2>Add Food</h2>
+          <div class="search-container">
+            <div class="form-group">
+              <label for="foodSearch">Search Food:</label>
+              <input type="text" id="foodSearch" placeholder="Search for a food...">
+            </div>
+            <div id="searchResults"></div>
+          </div>
+          <form id="foodForm">
+            <div class="form-group">
+              <label for="foodName">Food Name:</label>
+              <input type="text" id="foodName" required>
+            </div>
+            <div class="form-group">
+              <label for="mealType">Meal:</label>
+              <select id="mealType">
+                <option value="breakfast">Breakfast</option>
+                <option value="lunch">Lunch</option>
+                <option value="dinner">Dinner</option>
+                <option value="snack">Snack</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="servingSize">Serving Size:</label>
+              <input type="text" id="servingSize" placeholder="e.g., 100g, 1 cup">
+            </div>
+            <div class="form-group">
+              <label for="calories">Calories:</label>
+              <input type="number" id="calories" min="0" required>
+            </div>
+            <div class="form-group">
+              <label for="protein">Protein (g):</label>
+              <input type="number" id="protein" min="0" step="0.1" required>
+            </div>
+            <div class="form-group">
+              <label for="carbs">Carbs (g):</label>
+              <input type="number" id="carbs" min="0" step="0.1" required>
+            </div>
+            <div class="form-group">
+              <label for="fat">Fat (g):</label>
+              <input type="number" id="fat" min="0" step="0.1" required>
+            </div>
+            <button type="submit" style="grid-column: span 2;">Add Food</button>
+          </form>
+        </div>
+        
+        <div class="card">
+          <h2>Nutrition Goals</h2>
+          <form id="goalsForm">
+            <div class="form-group">
+              <label for="setCalorieGoal">Daily Calories:</label>
+              <input type="number" id="setCalorieGoal" min="0" value="2000">
+            </div>
+            <div class="form-group">
+              <label for="setProteinGoal">Protein (g):</label>
+              <input type="number" id="setProteinGoal" min="0" value="150">
+            </div>
+            <div class="form-group">
+              <label for="setCarbGoal">Carbs (g):</label>
+              <input type="number" id="setCarbGoal" min="0" value="250">
+            </div>
+            <div class="form-group">
+              <label for="setFatGoal">Fat (g):</label>
+              <input type="number" id="setFatGoal" min="0" value="70">
+            </div>
+            <button type="submit" style="grid-column: span 2;">Update Goals</button>
+          </form>
+        </div>
+      </div>
+      
+      <div class="right-panel">
+        <div class="card">
+          <h2>Today's Food Log</h2>
+          
+          <div class="meal-section">
+            <div class="meal-header">
+              <h3>Breakfast</h3>
+            </div>
+            <table id="breakfastTable">
+              <thead>
+                <tr>
+                  <th>Food</th>
+                  <th>Serving</th>
+                  <th>Calories</th>
+                  <th>Protein</th>
+                  <th>Carbs</th>
+                  <th>Fat</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Breakfast items will be added here -->
+              </tbody>
+            </table>
+          </div>
+          
+          <div class="meal-section">
+            <div class="meal-header">
+              <h3>Lunch</h3>
+            </div>
+            <table id="lunchTable">
+              <thead>
+                <tr>
+                  <th>Food</th>
+                  <th>Serving</th>
+                  <th>Calories</th>
+                  <th>Protein</th>
+                  <th>Carbs</th>
+                  <th>Fat</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Lunch items will be added here -->
+              </tbody>
+            </table>
+          </div>
+          
+          <div class="meal-section">
+            <div class="meal-header">
+              <h3>Dinner</h3>
+            </div>
+            <table id="dinnerTable">
+              <thead>
+                <tr>
+                  <th>Food</th>
+                  <th>Serving</th>
+                  <th>Calories</th>
+                  <th>Protein</th>
+                  <th>Carbs</th>
+                  <th>Fat</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Dinner items will be added here -->
+              </tbody>
+            </table>
+          </div>
+          
+          <div class="meal-section">
+            <div class="meal-header">
+              <h3>Snacks</h3>
+            </div>
+            <table id="snackTable">
+              <thead>
+                <tr>
+                  <th>Food</th>
+                  <th>Serving</th>
+                  <th>Calories</th>
+                  <th>Protein</th>
+                  <th>Carbs</th>
+                  <th>Fat</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Snack items will be added here -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+        
+        <div class="card chart-container">
+          <h2>Macronutrient Distribution</h2>
+          <canvas id="nutrientChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Chart.js library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+  
+  <script>
+    // Models & Data
+    let currentDate = new Date();
+    let nutritionData = {};
+    
+    // Common food database for search functionality
+    const commonFoods = [
+      { name: "Chicken Breast", calories: 165, protein: 31, carbs: 0, fat: 3.6, serving: "100g" },
+      { name: "Brown Rice", calories: 112, protein: 2.6, carbs: 24, fat: 0.9, serving: "100g" },
+      { name: "Egg", calories: 78, protein: 6.3, carbs: 0.6, fat: 5.3, serving: "1 large" },
+      { name: "Salmon", calories: 206, protein: 22, carbs: 0, fat: 13, serving: "100g" },
+      { name: "Broccoli", calories: 34, protein: 2.8, carbs: 6.6, fat: 0.4, serving: "100g" },
+      { name: "Greek Yogurt", calories: 59, protein: 10, carbs: 3.6, fat: 0.4, serving: "100g" },
+      { name: "Banana", calories: 89, protein: 1.1, carbs: 22.8, fat: 0.3, serving: "1 medium" },
+      { name: "Almonds", calories: 579, protein: 21, carbs: 21.6, fat: 49.9, serving: "100g" },
+      { name: "Sweet Potato", calories: 86, protein: 1.6, carbs: 20.1, fat: 0.1, serving: "100g" },
+      { name: "Oatmeal", calories: 68, protein: 2.4, carbs: 12, fat: 1.4, serving: "100g cooked" },
+      { name: "Avocado", calories: 160, protein: 2, carbs: 8.5, fat: 14.7, serving: "1/2 medium" },
+      { name: "Spinach", calories: 23, protein: 2.9, carbs: 3.6, fat: 0.4, serving: "100g" },
+      { name: "Ground Beef (lean)", calories: 250, protein: 26, carbs: 0, fat: 15, serving: "100g" },
+      { name: "Quinoa", calories: 120, protein: 4.4, carbs: 21.3, fat: 1.9, serving: "100g cooked" },
+      { name: "Peanut Butter", calories: 588, protein: 25, carbs: 20, fat: 50, serving: "100g" }
+    ];
+    
+    // Goals (default values)
+    let goals = {
+      calories: 2000,
+      protein: 150,
+      carbs: 250,
+      fat: 70
+    };
+    
+    // DOM Elements
+    const foodForm = document.getElementById('foodForm');
+    const goalsForm = document.getElementById('goalsForm');
+    const prevDayBtn = document.getElementById('prevDay');
+    const nextDayBtn = document.getElementById('nextDay');
+    const currentDateEl = document.getElementById('currentDate');
+    const foodSearchInput = document.getElementById('foodSearch');
+    const searchResultsDiv = document.getElementById('searchResults');
+    
+    // Nutrient chart
+    let nutrientChart;
+    
+    // Initialize the app
+    function init() {
+      // Load saved data
+      loadFromLocalStorage();
+      
+      // Update UI based on current date
+      updateDateDisplay();
+      
+      // Set up event listeners
+      setupEventListeners();
+      
+      // Initialize chart
+      initChart();
+      
+      // Update summary stats
+      updateStats();
+      
+      // Update UI based on loaded data
+      renderFoodLogs();
+    }
+    
+    // Setup event listeners
+    function setupEventListeners() {
+      // Food form submission
+      foodForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        addFoodItem();
+      });
+      
+      // Goals form submission
+      goalsForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        updateGoals();
+      });
+      
+      // Date navigation
+      prevDayBtn.addEventListener('click', function() {
+        navigateDate(-1);
+      });
+      
+      nextDayBtn.addEventListener('click', function() {
+        navigateDate(1);
+      });
+      
+      // Food search
+      foodSearchInput.addEventListener('input', debounce(handleFoodSearch, 300));
+    }
+    
+    // Date formatting utility
+    function formatDate(date) {
+      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    }
+    
+    // Update date display
+    function updateDateDisplay() {
+      const today = new Date();
+      const dateKey = formatDate(currentDate);
+      
+      if (formatDate(today) === dateKey) {
+        currentDateEl.textContent = "Today";
+      } else {
+        currentDateEl.textContent = currentDate.toLocaleDateString('en-US', { 
+          weekday: 'long',
+          year: 'numeric', 
+          month: 'long', 
+          day: 'numeric' 
+        });
+      }
+      
+      // Initialize data structure for current date if needed
+      if (!nutritionData[dateKey]) {
+        nutritionData[dateKey] = {
+          breakfast: [],
+          lunch: [],
+          dinner: [],
+          snack: []
+        };
+      }
+    }
+    
+    // Navigate between dates
+    function navigateDate(offset) {
+      currentDate.setDate(currentDate.getDate() + offset);
+      updateDateDisplay();
+      renderFoodLogs();
+      updateStats();
+    }
+    
+    // Add food item to log
+    function addFoodItem() {
+      const dateKey = formatDate(currentDate);
+      const foodName = document.getElementById('foodName').value;
+      const mealType = document.getElementById('mealType').value;
+      const servingSize = document.getElementById('servingSize').value || '1 serving';
+      const calories = parseFloat(document.getElementById('calories').value);
+      const protein = parseFloat(document.getElementById('protein').value);
+      const carbs = parseFloat(document.getElementById('carbs').value);
+      const fat = parseFloat(document.getElementById('fat').value);
+      
+      const foodItem = {
+        id: Date.now(), // Unique ID for food item
+        name: foodName,
+        serving: servingSize,
+        calories,
+        protein,
+        carbs,
+        fat
+      };
+      
+      // Add to appropriate meal array
+      nutritionData[dateKey][mealType].push(foodItem);
+      
+      // Save to local storage
+      saveToLocalStorage();
+      
+      // Update UI
+      renderFoodLogs();
+      updateStats();
+      
+      // Reset form
+      foodForm.reset();
+    }
+    
+    // Delete food item
+    function deleteFoodItem(mealType, itemId) {
+      const dateKey = formatDate(currentDate);
+      
+      nutritionData[dateKey][mealType] = nutritionData[dateKey][mealType].filter(item => item.id !== itemId);
+      
+      // Save to local storage
+      saveToLocalStorage();
+      
+      // Update UI
+      renderFoodLogs();
+      updateStats();
+    }
+    
+    // Update nutrition goals
+    function updateGoals() {
+      goals = {
+        calories: parseInt(document.getElementById('setCalorieGoal').value),
+        protein: parseInt(document.getElementById('setProteinGoal').value),
+        carbs: parseInt(document.getElementById('setCarbGoal').value),
+        fat: parseInt(document.getElementById('setFatGoal').value)
+      };
+      
+      // Save goals to local storage
+      localStorage.setItem('nutritionTrackerGoals', JSON.stringify(goals));
+      
+      // Update UI
+      updateStats();
+    }
+    
+    // Render food logs for each meal
+    function renderFoodLogs() {
+      const dateKey = formatDate(currentDate);
+      const meals = ['breakfast', 'lunch', 'dinner', 'snack'];
+      
+      meals.forEach(meal => {
+        const tableBody = document.querySelector(`#${meal}Table tbody`);
+        tableBody.innerHTML = '';
+        
+        if (nutritionData[dateKey][meal].length === 0) {
+          // Show empty state
+          const emptyRow = document.createElement('tr');
+          emptyRow.innerHTML = `<td colspan="7" style="text-align: center; color: #999;">No ${meal} items added yet</td>`;
+          tableBody.appendChild(emptyRow);
+          return;
+        }
+        
+        nutritionData[dateKey][meal].forEach(item => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${item.name}</td>
+            <td>${item.serving}</td>
+            <td>${item.calories}</td>
+            <td>${item.protein}g</td>
+            <td>${item.carbs}g</td>
+            <td>${item.fat}g</td>
+            <td>
+              <button class="btn-delete" onclick="deleteFoodItem('${meal}', ${item.id})">Delete</button>
+            </td>
+          `;
+          tableBody.appendChild(row);
+        });
+      });
+    }
+    
+    // Calculate totals for the day
+    function calculateDailyTotals() {
+      const dateKey = formatDate(currentDate);
+      const meals = ['breakfast', 'lunch', 'dinner', 'snack'];
+      
+      let totals = {
+        calories: 0,
+        protein: 0,
+        carbs: 0,
+        fat: 0
+      };
+      
+      meals.forEach(meal => {
+        if (nutritionData[dateKey] && nutritionData[dateKey][meal]) {
+          nutritionData[dateKey][meal].forEach(item => {
+            totals.calories += item.calories;
+            totals.protein += item.protein;
+            totals.carbs += item.carbs;
+            totals.fat += item.fat;
+          });
+        }
+      });
+      
+      return totals;
+    }
+    
+    // Update summary statistics
+    function updateStats() {
+      const totals = calculateDailyTotals();
+      
+      // Update display elements
+      document.getElementById('totalCalories').textContent = Math.round(totals.calories);
+      document.getElementById('totalProtein').textContent = Math.round(totals.protein) + 'g';
+      document.getElementById('totalCarbs').textContent = Math.round(totals.carbs) + 'g';
+      document.getElementById('totalFat').textContent = Math.round(totals.fat) + 'g';
+      
+      // Update goals display
+      document.getElementById('calorieGoal').textContent = goals.calories;
+      document.getElementById('proteinGoal').textContent = goals.protein + 'g';
+      document.getElementById('carbGoal').textContent = goals.carbs + 'g';
+      document.getElementById('fatGoal').textContent = goals.fat + 'g';
+      
+      // Update progress bars
+      document.getElementById('calorieProgress').style.width = `${Math.min(100, (totals.calories / goals.calories) * 100)}%`;
+      document.getElementById('proteinProgress').style.width = `${Math.min(100, (totals.protein / goals.protein) * 100)}%`;
+      document.getElementById('carbProgress').style.width = `${Math.min(100, (totals.carbs / goals.carbs) * 100)}%`;
+      document.getElementById('fatProgress').style.width = `${Math.min(100, (totals.fat / goals.fat) * 100)}%`;
+      
+      // Update chart
+      updateChart(totals);
+    }
+    
+    // Initialize chart
+    function initChart() {
+      const ctx = document.getElementById('nutrientChart').getContext('2d');
+      
+      nutrientChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Protein', 'Carbs', 'Fat'],
+          datasets: [{
+            data: [0, 0, 0],
+            backgroundColor: [
+              '#2196F3',  // Protein - Blue
+              '#FF9800',  // Carbs - Orange
+              '#F44336'   // Fat - Red
+            ]
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom'
+            },
+            tooltip: {
+              callbacks: {
+                label: function(tooltipItem) {
+                  const value = tooltipItem.raw;
+                  const total = tooltipItem.dataset.data.reduce((a, b) => a + b, 0);
+                  const percentage = Math.round((value / total) * 100);
+                  return `${tooltipItem.label}: ${value}g (${percentage}%)`;
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+    
+    // Update chart data
+    function updateChart(totals) {
+      if (nutrientChart) {
+        nutrientChart.data.datasets[0].data = [
+          Math.round(totals.protein), 
+          Math.round(totals.carbs), 
+          Math.round(totals.fat)
+        ];
+        nutrientChart.update();
+      }
+    }
+    
+    // Save data to local storage
+    function saveToLocalStorage() {
+      localStorage.setItem('nutritionTrackerData', JSON.stringify(nutritionData));
+    }
+    
+    // Load data from local storage
+    function loadFromLocalStorage() {
+      const savedData = localStorage.getItem('nutritionTrackerData');
+      if (savedData) {
+        nutritionData = JSON.parse(savedData);
+      }
+      
+      const savedGoals = localStorage.getItem('nutritionTrackerGoals');
+      if (savedGoals) {
+        goals = JSON.parse(savedGoals);
+        document.getElementById('setCalorieGoal').value = goals.calories;
+        document.getElementById('setProteinGoal').value = goals.protein;
+        document.getElementById('setCarbGoal').value = goals.carbs;
+        document.getElementById('setFatGoal').value = goals.fat;
+      }
+    }
+    
+    // Handle food search
+    function handleFoodSearch() {
+      const searchTerm = foodSearchInput.value.toLowerCase();
+      searchResultsDiv.innerHTML = '';
+      
+      if (searchTerm.length < 2) return;
+      
+      const matchingFoods = commonFoods.filter(food => 
+        food.name.toLowerCase().includes(searchTerm)
+      );
+      
+      if (matchingFoods.length === 0) {
+        searchResultsDiv.innerHTML = '<div class="result-item">No foods found</div>';
+        return;
+      }
+      
+      matchingFoods.forEach(food => {
+        const resultItem = document.createElement('div');
+        resultItem.className = 'result-item';
+        resultItem.innerHTML = `<strong>${food.name}</strong> - ${food.calories} cal, ${food.protein}g protein, ${food.carbs}g carbs, ${food.fat}g fat';, ${food.serving}
+      }';
+        </body>
+
+</html>

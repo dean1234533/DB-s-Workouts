@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Everyday Beast Mode</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="icon.png" />
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      text-align: center;
+      background-color: #1e1e1e;
+      color: #fff;
+      padding: 20px;
+    }
+
+    h1 {
+      color: #f5c518;
+    }
+
+    button {
+      padding: 10px 20px;
+      margin: 10px;
+      font-size: 16px;
+      background-color: #f5c518;
+      color: #000;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #challenge-box, #log-box {
+      margin-top: 20px;
+      padding: 20px;
+      border-radius: 10px;
+    }
+
+    #challenge-box {
+      border: 2px solid #f5c518;
+      background-color: #2e2e2e;
+    }
+
+    #log-box {
+      background-color: #333;
+    }
+
+    .note {
+      font-size: 14px;
+      color: #bbb;
+      margin-top: 15px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Everyday Beast Mode</h1>
+
+  <div>
+   
+    <button onclick="randomChallenge()">Random Challenge</button>
+  </div>
+
+  <div id="challenge-box">
+    <h2>Challenge</h2>
+    <p id="challenge-text">Choose a method above to get your challenge.</p>
+    <button onclick="logReps()">Log Reps</button>
+  </div>
+
+  <div>
+    <button onclick="logPhoneSpot()">Saw Someone on Phone</button>
+    <button onclick="logBadDriver()">Saw Someone Not Indicate</button>
+    <button onclick="resetWeek()">Reset Week</button>
+  </div>
+
+  <div id="log-box">
+    <h3>Workout Tracker</h3>
+    <p>Total Reps Today: <span id="rep-count">0</span></p>
+    <p>Challenges Completed: <span id="challenge-count">0</span></p>
+    <p><strong>Weekly Run Time:</strong> <span id="run-time">0</span> minutes</p>
+    <p class="note">Don't be walking around with your eyes closed — the only person you're cheating is yourself!</p>
+  </div>
+
+  <script>
+    const challenges = [
+      "Gordon Ramsay Swears: 15 Squats",
+      "YouTube Ad: 6 Burpees",
+      "See Food Delivery Rider: 10 Push-Ups",
+      "See a Pothole: 5 Seconds High Knees",
+      "Car/Bike with L Plate: 12 Sit-Ups",
+      "Roadworks: 20 Plank Punches (each arm)",
+      "See Someone on Their Phone: 25 Jumping Jacks",
+      "See a Car Not Indicate While Turning: +5 min to Weekly Run"
+    ];
+  
+    let totalReps = 0;
+    let challengeCount = 0;
+    let runTime = 0;
+  
+    function getRandomChallenge() {
+      return challenges[Math.floor(Math.random() * challenges.length)];
+    }
+  
+    function showChallenge(challenge) {
+      document.getElementById('challenge-text').innerText = challenge;
+  
+      if (challenge.includes("Jumping Jacks")) {
+        totalReps += 25;
+      } else if (challenge.includes("15 Squats")) {
+        totalReps += 15;
+      } else if (challenge.includes("6 Burpees")) {
+        totalReps += 6;
+      } else if (challenge.includes("10 Push-Ups")) {
+        totalReps += 10;
+      } else if (challenge.includes("12 Sit-Ups")) {
+        totalReps += 12;
+      } else if (challenge.includes("20 Plank Punches")) {
+        totalReps += 40;
+      }
+  
+      if (challenge.includes("+5 min")) {
+        runTime += 5;
+      }
+  
+      updateTracker();
+    }
+  
+   
+  
+    
+  
+    function randomChallenge() {
+      showChallenge(getRandomChallenge());
+    }
+  
+    function logReps() {
+      challengeCount++;
+      updateTracker();
+    }
+  
+    function logPhoneSpot() {
+      totalReps += 25;
+      challengeCount++;
+      alert("Phone spot! 25 Jumping Jacks added!");
+      updateTracker();
+    }
+  
+    function logBadDriver() {
+      runTime += 5;
+      challengeCount++;
+      alert("Bad driver spotted! 5 mins added to your run!");
+      updateTracker();
+    }
+  
+    function resetWeek() {
+  if (confirm("Reset all weekly stats?")) {
+    // Clear values
+    totalReps = 0;
+    challengeCount = 0;
+    runTime = 0;
+
+    // Clear DOM display
+    document.getElementById('rep-count').textContent = '0';
+    document.getElementById('challenge-count').textContent = '0';
+    document.getElementById('run-time').textContent = '0';
+    document.getElementById('challenge-text').textContent = "New week, new gains. Let’s go!";
+
+    // Optional: force a repaint by toggling visibility (mobile-friendly)
+    const logBox = document.getElementById('log-box');
+    logBox.style.display = 'none';
+    setTimeout(() => {
+      logBox.style.display = 'block';
+    }, 50);
+  }
+}
+
+  
+    function updateTracker() {
+      document.getElementById('rep-count').innerText = totalReps;
+      document.getElementById('challenge-count').innerText = challengeCount;
+      document.getElementById('run-time').innerText = runTime;
+    }
+  
+    // Sync UI when page loads
+    updateTracker();
+  
+    // Register service worker
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js');
+    }
+
+    
+  </script>
+
+</body>
+</html>

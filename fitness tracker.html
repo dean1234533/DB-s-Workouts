@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FitTrack - Your Comprehensive Fitness Companion</title>
+  <style>
+    :root {
+      --primary: #4CAF50;
+      --primary-dark: #388E3C;
+      --secondary: #2196F3;
+      --light: #f8f9fa;
+      --dark: #343a40;
+      --success: #28a745;
+      --danger: #dc3545;
+      --warning: #ffc107;
+      --info: #17a2b8;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    body {
+      background-color: #f5f5f5;
+      color: #333;
+      line-height: 1.6;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+    
+    header {
+      background-color: var(--primary);
+      color: white;
+      padding: 1rem 0;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+    
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+    }
+    
+    .logo i {
+      margin-right: 10px;
+    }
+    
+    .nav-links {
+      display: flex;
+      list-style: none;
+    }
+    
+    .nav-links li {
+      margin-left: 20px;
+    }
+    
+    .nav-links a {
+      color: white;
+      text-decoration: none;
+      padding: 5px 10px;
+      border-radius: 4px;
+      transition: background-color 0.3s;
+    }
+    
+    .nav-links a:hover {
+      background-color: var(--primary-dark);
+    }
+    
+    .nav-links .active {
+      background-color: var(--primary-dark);
+    }
+    
+    .hamburger {
+      display: none;
+      cursor: pointer;
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.5rem;
+    }
+    
+    main {
+      padding: 2rem 0;
+    }
+    
+    .hero {
+      text-align: center;
+      padding: 3rem 0;
+      background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('/api/placeholder/1200/400') center/cover;
+      color: white;
+      margin-bottom: 2rem;
+      border-radius: 10px;
+    }
+    
+    .hero h1 {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+    
+    .hero p {
+      font-size: 1.2rem;
+      max-width: 800px;
+      margin: 0 auto 2rem;
+    }
+    
+    .btn {
+      display: inline-block;
+      padding: 10px 20px;
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background-color 0.3s;
+    }
+    
+    .btn:hover {
+      background-color: var(--primary-dark);
+    }
+    
+    .btn-secondary {
+      background-color: var(--secondary);
+    }
+    
+    .btn-secondary:hover {
+      background-color: #1976D2;
+    }
+    
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+    
+    .feature-card {
+      background-color: white;
+      padding: 1.5rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      transition: transform 0.3s;
+    }
+    
+    .feature-card:hover {
+      transform: translateY(-5px);
+    }
+    
+    .feature-card i {
+      font-size: 2rem;
+      color: var(--primary);
+      margin-bottom: 1rem;
+    }
+    
+    .feature-card h3 {
+      margin-bottom: 1rem;
+    }
+    
+    .card {
+      background-color: white;
+      padding: 1.5rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      margin-bottom: 2rem;
+    }
+    
+    .card h2 {
+      border-bottom: 2px solid var(--primary);
+      padding-bottom: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    
+    .tab-container {
+      margin-bottom: 2rem;
+    }
+    
+    .tabs {
+      display: flex;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid #ddd;
+      overflow-x: auto;
+    }
+    
+    .tab-btn {
+      padding: 10px 20px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 500;
+      transition: all 0.3s;
+      border-bottom: 3px solid transparent;
+    }
+    
+    .tab-btn:hover {
+      color: var(--primary);
+    }
+    
+    .tab-btn.active {
+      color: var(--primary);
+      border-bottom: 3px solid var(--primary);
+    }
+    
+    .tab-content {
+      display: none;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    form {
+      margin-bottom: 1rem;
+    }
+    
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+    
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 1rem;
+    }
+    
+    input[type="date"], input[type="time"] {
+      padding: 8px;
+    }
+    
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+    }
+    
+    .checkbox-group input {
+      width: auto;
+      margin-right: 10px;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
+    }
+    
+    table th, table td {
+      padding: 10px;
+      border: 1px solid #ddd;
+      text-align: left;
+    }
+    
+    table th {
+      background-color: #f5f5f5;
+    }
+    
+    .progress-container {
+      background-color: #f5f5f5;
+      border-radius: 50px;
+      height: 20px;
+      margin-bottom: 1rem;
+      overflow: hidden;
+    }
+    
+    .progress-bar {
+      height: 100%;
+      background-color: var(--primary);
+      width: 0;
+      transition: width 0.3s;
+      text-align: center;
+      line-height: 20px;
+      color: white;
+      font-size: 0.8rem;
+    }
+    
+    .chart-container {
+      height: 300px;
+      margin-bottom: 1rem;
+    }
+    
+    .exercise-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1rem;
+    }
+    
+    .exercise-card {
+      background-color: white;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      transition: transform 0.3s;
+    }
+    
+    .exercise-card:hover {
+      transform: translateY(-5px);
+    }
+    
+    .exercise-image {
+      height: 180px;
+      background-color: #f5f5f5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .exercise-content {
+      padding: 1rem;
+    }
+    
+    .exercise-title {
+      font-size: 1.2rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .exercise-meta {
+      display: flex;
+      margin-bottom: 0.5rem;
+      color: #666;
+      font-size: 0.9rem;
+    }
+    
+    .exercise-meta span {
+      margin-right: 1rem;
+      display: flex;
+      align-items: center;
+    }
+    
+    .exercise-meta i {
+      margin-right: 5px;
+    }
+    
+    .calendar {
+      background-color: white;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    
+    .calendar-header {
+      background-color: var(--primary);
+      color: white;
+      padding: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+    }
+    
+    .calendar-day {
+      height: 100px;
+      border: 1px solid #ddd;
+      padding: 5px;
+      overflow: hidden;
+    }
+    
+    .calendar-weekday {
+      text-align: center;
+      padding: 10px;
+      background-color: #f5f5f5;
+      font-weight: 500;
+    }
+    
+    .calendar-date {
+      font-weight: 500;
+      margin-bottom: 5px;
+    }
+    
+    .calendar-event {
+      background-color: #e3f2fd;
+      border-radius: 3px;
+      padding: 2px 5px;
+      font-size: 0.8rem;
+      margin-bottom: 3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    footer {
+      background-color: var(--dark);
+      color: white;
+      padding: 2rem 0;
+      margin-top: 2rem;
+    }
+    
+    .footer-content {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 2rem;
+    }
+    
+    .footer-section h3 {
+      margin-bottom: 1rem;
+      border-bottom: 2px solid var(--primary);
+      padding-bottom: 0.5rem;
+      display: inline-block;
+    }
+    
+    .footer-links {
+      list-style: none;
+    }
+    
+    .footer-links li {
+      margin-bottom: 0.5rem;
+    }
+    
+    .footer-links a {
+      color: #ddd;
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+    
+    .footer-links a:hover {
+      color: var(--primary);
+    }
+    
+    .social-links {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    
+    .social-links a {
+      color: white;
+      background-color: rgba(255,255,255,0.1);
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: background-color 0.3s;
+    }
+    
+    .social-links a:hover {
+      background-color: var(--primary);
+    }
+    
+    .copyright {
+      text-align: center;
+      padding-top: 2rem;
+      margin-top: 2rem;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    @media (max-width: 768px) {
+      .nav-links {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background-color: var(--primary);
+        padding: 1rem;
+      }
+      
+      .nav-links.show {
+        display: flex;
+      }
+      
+      .nav-links li {
+        margin: 0.5rem 0;
+      }
+      
+      .hamburger {
+        display: block;
+      }
+      
+      .hero h1 {
+        font-size: 2rem;
+      }
+      
+      .hero p {
+        font-size: 1rem;
+      }
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/js/all.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <nav>
+        <div class="logo">
+          <i class="fas fa-dumbbell"></i>
+          <span>FitTrack</span>
+        </div>
+        <ul class="nav-links">
+          <li><a href="#" class="active">Dashboard</a></li>
+          <li><a href="#workouts">Workouts</a></li>
+          <li><a href="#nutrition">Nutrition</a></li>
+          <li><a href="#progress">Progress</a></li>
+          <li><a href="#schedule">Schedule</a></li>
+          <li><a href="#resources">Resources</a></li>
+        </ul>
+        <button class="hamburger">
+          <i class="fas fa-bars"></i>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      <section class="hero">
+        <h1>Achieve Your Fitness Goals</h1>
+        <p>Track your workouts, monitor your nutrition, and see your progress all in one place.</p>
+        <a href="#" class="btn">Get Started</a>
+        <a href="#" class="btn btn-secondary">Learn More</a>
+      </section>
+
+      <section class="features">
+        <div class="feature-card">
+          <i class="fas fa-calendar-check"></i>
+          <h3>Workout Reminders</h3>
+          <p>Set daily workout reminders and never miss a session again. Our smart notifications keep you on track.</p>
+        </div>
+        <div class="feature-card">
+          <i class="fas fa-weight"></i>
+          <h3>Weight Tracking</h3>
+          <p>Log your weight regularly and visualize your progress over time with intuitive charts and graphs.</p>
+        </div>
+        <div class="feature-card">
+          <i class="fas fa-apple-alt"></i>
+          <h3>Nutrition Logging</h3>
+          <p>Track your daily calories, macros, and protein intake to ensure you're fueling your body properly.</p>
+        </div>
+        <div class="feature-card">
+          <i class="fas fa-chart-line"></i>
+          <h3>Progress Check-ins</h3>
+          <p>Weekly progress reviews help you stay accountable and make necessary adjustments to your fitness plan.</p>
+        </div>
+        <div class="feature-card">
+          <i class="fas fa-video"></i>
+          <h3>Exercise Library</h3>
+          <p>Access our vast collection of exercises with detailed instructions and YouTube demonstration videos.</p>
+        </div>
+        <div class="feature-card">
+          <i class="fas fa-users"></i>
+          <h3>Shared Schedule</h3>
+          <p>Create and share workout schedules with friends, trainers, or workout partners for better accountability.</p>
+        </div>
+      </section>
+
+      <section id="dashboard" class="card">
+        <h2>Dashboard</h2>
+        <div class="tab-container">
+          <div class="tabs">
+            <button class="tab-btn active" data-tab="overview">Overview</button>
+            <button class="tab-btn" data-tab="food-diary">Food Diary</button>
+            <button class="tab-btn" data-tab="weight-logger">Weight Logger</button>
+            <button class="tab-btn" data-tab="water-tracker">Water Tracker</button>
+            <button class="tab-btn" data-tab="workout-log">Workout Log</button>
+          </div>
+
+          <div id="overview" class="tab-content active">
+            <h3>Today's Summary</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
+              <div style="background-color: #e3f2fd; padding: 1rem; border-radius: 5px; text-align: center;">
+                <h4>Calories</h4>
+                <div style="font-size: 2rem; font-weight: bold;">1,450</div>
+                <div>Goal: 2,000</div>
+              </div>
+              <div style="background-color: #e8f5e9; padding: 1rem; border-radius: 5px; text-align: center;">
+                <h4>Protein</h4>
+                <div style="font-size: 2rem; font-weight: bold;">85g</div>
+                <div>Goal: 120g</div>
+              </div>
+              <div style="background-color: #fff3e0; padding: 1rem; border-radius: 5px; text-align: center;">
+                <h4>Water</h4>
+                <div style="font-size: 2rem; font-weight: bold;">1.2L</div>
+                <div>Goal: 2.5L</div>
+              </div>
+              <div style="background-color: #f3e5f5; padding: 1rem; border-radius: 5px; text-align: center;">
+                <h4>Steps</h4>
+                <div style="font-size: 2rem; font-weight: bold;">6,542</div>
+                <div>Goal: 10,000</div>
+              </div>
+            </div>
+
+            <h3>Weekly Progress</h3>
+            <div class="chart-container">
+              <canvas id="weeklyProgressChart"></canvas>
+            </div>
+
+            <h3>Upcoming Workouts</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Time</th>
+                  <th>Workout Type</th>
+                  <th>Duration</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Today</td>
+                  <td>6:00 PM</td>
+                  <td>Lower Body Strength</td>
+                  <td>45 min</td>
+                  <td><button class="btn">Start</button></td>
+                </tr>
+                <tr>
+                  <td>Tomorrow</td>
+                  <td>7:30 AM</td>
+                  <td>HIIT Cardio</td>
+                  <td>30 min</td>
+                  <td><button class="btn">View</button></td>
+                </tr>
+                <tr>
+                  <td>Apr 20, 2025</td>
+                  <td>6:00 PM</td>
+                  <td>Upper Body Strength</td>
+                  <td>45 min</td>
+                  <td><button class="btn">View</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div id="food-diary" class="tab-content">
+            <h3>Today's Food Log</h3>
+            <form id="food-entry-form">
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                <div class="form-group">
+                  <label for="food-name">Food Item</label>
+                  <input type="text" id="food-name" placeholder="Enter food name">
+                </div>
+                <div class="form-group">
+                  <label for="food-calories">Calories</label>
+                  <input type="number" id="food-calories" placeholder="Calories">
+                </div>
+                <div class="form-group">
+                  <label for="food-protein">Protein (g)</label>
+                  <input type="number" id="food-protein" placeholder="Protein in grams">
+                </div>
+                <div class="form-group">
+                  <label for="food-carbs">Carbs (g)</label>
+                  <input type="number" id="food-carbs" placeholder="Carbs in grams">
+                </div>
+                <div class="form-group">
+                  <label for="food-fat">Fat (g)</label>
+                  <input type="number" id="food-fat" placeholder="Fat in grams">
+                </div>
+                <div class="form-group">
+                  <label for="meal-type">Meal</label>
+                  <select id="meal-type">
+                    <option>Breakfast</option>
+                    <option>Lunch</option>
+                    <option>Dinner</option>
+                    <option>Snack</option>
+                  </select>
+                </div>
+              </div>
+              <button type="submit" class="btn">Add Food</button>
+            </form>
+
+            <div style="margin-top: 2rem;">
+              <h4>Breakfast</h4>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Food</th>
+                    <th>Calories</th>
+                    <th>Protein</th>
+                    <th>Carbs</th>
+                    <th>Fat</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Oatmeal with Blueberries</td>
+                    <td>320</td>
+                    <td>12g</td>
+                    <td>58g</td>
+                    <td>5g</td>
+                    <td><button class="btn">Edit</button> <button class="btn" style="background-color: var(--danger);">Delete</button></td>
+                  </tr>
+                  <tr>
+                    <td>Coffee with Milk</td>
+                    <td>40</td>
+                    <td>2g</td>
+                    <td>3g</td>
+                    <td>2g</td>
+                    <td><button class="btn">Edit</button> <button class="btn" style="background-color: var(--danger);">Delete</button></td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <h4>Lunch</h4>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Food</th>
+                    <th>Calories</th>
+                    <th>Protein</th>
+                    <th>Carbs</th>
+                    <th>Fat</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Chicken Salad</td>
+                    <td>450</td>
+                    <td>35g</td>
+                    <td>25g</td>
+                    <td>22g</td>
+                    <td><button class="btn">Edit</button> <button class="btn" style="background-color: var(--danger);">Delete</button></td>
+                  </tr>
+                  <tr>
+                    <td>Greek Yogurt</td>
+                    <td>120</td>
+                    <td>15g</td>
+                    <td>8g</td>
+                    <td>0g</td>
+                    <td><button class="btn">Edit</button> <button class="btn" style="background-color: var(--danger);">Delete</button></td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <h4>Dinner</h4>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Food</th>
+                    <th>Calories</th>
+                    <th>Protein</th>
+                    <th>Carbs</th>
+                    <th>Fat</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Grilled Salmon</td>
+                    <td>300</td>
+                    <td>34g</td>
+                    <td>0g</td>
+                    <td>15g</td>
+                    <td><button class="btn">Edit</button> <button class="btn" style="background-color: var(--danger);">Delete</button></td>
+                  </tr>
+                  <tr>
+                    <td>Steamed Broccoli</td>
+                    <td>55</td>
+                    <td>4g</td>
+                    <td>11g</td>
+                    <td>0g</td>
+                    <td><button class="btn">Edit</button> <button class="btn" style="background-color: var(--danger);">Delete</button></td>
+                  </tr>
+                  <tr>
+                    <td>Brown Rice</td>
+                    <td>215</td>
+                    <td>5g</td>
+                    <td>45g</td>
+                    <td>2g</td>
+                    <td><button class="btn">Edit</button> <button class="btn" style="background-color: var(--danger);">Delete</button></td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <h4>Daily Totals</h4>
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin: 1rem 0;">
+                <div style="background-color: #f5f5f5; padding: 1rem; border-radius: 5px; text-align: center;">
+                  <h5>Calories</h5>
+                  <div style="font-size: 1.5rem; font-weight: bold;">1,500 / 2,000</div>
+                  <div class="progress-container">
+                    <div class="progress-bar" style="width: 75%;">75%</div>
+                  </div>
+                </div>
+                <div style="background-color: #f5f5f5; padding: 1rem; border-radius: 5px; text-align: center;">
+                  <h5>Protein</h5>
+                  <div style="font-size: 1.5rem; font-weight: bold;">107g / 120g</div>
+                  <div class="progress-container">
+                    <div class="progress-bar" style="width: 89%;">89%</div>
+                  </div>
+                </div>
+                <div style="background-color: #f5f5f5; padding: 1rem; border-radius: 5px; text-align: center;">
+                  <h5>Carbs</h5>
+                  <div style="font-size: 1.5rem; font-weight: bold;">150g / 250g</div>
+                  <div class="progress-container">
+                    <div class="progress-bar" style="width: 60%;">60%</div>
+                  </div>
+                </div>
+                <div style="background-color: #f5f5f5; padding: 1rem; border-radius: 5px; text-align: center;">
+                  <h5>Fat</h5>
+                  <div style="font-size: 1.5rem; font-weight: bold;">46g / 65g</div>
+                  <div class="progress-container">
+                    <div class="progress-bar" style="width: 71%;">71%</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div id="weight-logger" class="tab-content">
+            <h3>Weight Log</h3>
+            <form id="weight-entry-form">
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                <div class="form-group">
+                  <label for="weight-date">Date</label>
+                  <input type="date" id="weight-date" value="2025-04-18">
+                </div>
+                <div class="form-group">
+                  <label for="weight-value">Weight (kg)</label>
+                  <input type="number" id="weight-value" step="0.1" placeholder="Enter your weight">
+                </div>
+                <div class="form-group">
+                  <label for="weight-notes">Notes</label>
+                  <input type="text" id="weight-notes" placeholder="Any notes about today's weight">
+                </div>
+              </div>
+              <button type="submit" class="btn">Log Weight</button>
+            </form>
+
+            <div style="margin-top: 2rem;">
+              <div class="chart-container">
+                <canvas id="weightChart"></canvas>
+              </div>
+
+              <table>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Weight (kg)</th>
+                    <th>Change</th>
+                    <th>Notes</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Apr 18, 2025</td>
+                    <td>72.5</td>
+                    <td style="color: var(--success);">-0.3</td>
+                    <td>Morning weight, after workout</td>
+                    <td><button class="btn">Edit</button> <button class="
+                   

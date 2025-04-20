@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Grocery List & Meal Generator</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f5f5f5;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+
+    .container {
+      background: #fff;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      color: #2c3e50;
+      text-align: center;
+      margin-bottom: 30px;
+      font-weight: 600;
+    }
+
+    .input-container {
+      position: relative;
+      margin-bottom: 20px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px 15px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      font-size: 16px;
+      transition: border-color 0.3s;
+      box-sizing: border-box;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #3498db;
+    }
+
+    .suggestions {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      max-height: 200px;
+      overflow-y: auto;
+      position: absolute;
+      width: 100%;
+      z-index: 1000;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .suggestion-item {
+      padding: 10px 15px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .suggestion-item:hover {
+      background-color: #e6f7ff;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    button {
+      background-color: #3498db;
+      color: white;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.3s;
+      flex: 1;
+    }
+
+    button:hover {
+      background-color: #2980b9;
+    }
+
+    button.secondary {
+      background-color: #95a5a6;
+    }
+
+    button.secondary:hover {
+      background-color: #7f8c8d;
+    }
+
+    .tags-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .tag {
+      background-color: #e6f7ff;
+      color: #3498db;
+      padding: 6px 12px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      font-size: 14px;
+    }
+
+    .tag .remove {
+      margin-left: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 16px;
+    }
+
+    .output {
+      margin-top: 30px;
+      background: #f9f9f9;
+      padding: 25px;
+      border-radius: 10px;
+      border: 1px solid #ddd;
+    }
+
+    .recipe {
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .recipe:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .recipe h3 {
+      margin-top: 0;
+      color: #2c3e50;
+    }
+
+    h4 {
+      margin-bottom: 8px;
+      color: #3498db;
+    }
+
+    ul {
+      padding-left: 20px;
+      margin-bottom: 15px;
+    }
+
+    .instructions {
+      line-height: 1.6;
+    }
+
+    .missing {
+      color: #e74c3c;
+      font-style: italic;
+      margin-top: 5px;
+    }
+
+    .grocery-list {
+      margin-top: 30px;
+      background: #f0f8ff;
+      padding: 20px;
+      border-radius: 10px;
+      border: 1px solid #b3d4fc;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 20px;
+      }
+      
+      .buttons {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Grocery List & Meal Generator</h1>
+    
+    <div class="input-container">
+      <input type="text" id="ingredient-input" placeholder="Type ingredient and press Enter (e.g., chicken, rice)" autocomplete="off" />
+      <div id="suggestions" class="suggestions"></div>
+    </div>
+    
+    <div id="selected-ingredients" class="tags-container"></div>
+    
+    <div class="buttons">
+      <button id="generate-btn">Generate Meals</button>
+      <button id="clear-btn" class="secondary">Clear All</button>
+    </div>
+    
+    <div id="output" class="output" style="display: none;">
+      <div id="recipes-container"></div>
+      <div id="grocery-list" class="grocery-list"></div>
+    </div>
+  </div>
+
+  <script>
+    // Enhanced food database with more ingredients and pairings
+    const foodDatabase = [
+      { name: "chicken breast", category: "protein", pairsWith: ["rice", "pasta", "potatoes", "broccoli", "spinach", "bell peppers"] },
+      { name: "ground beef", category: "protein", pairsWith: ["pasta", "potatoes", "onions", "tomatoes", "cheese"] },
+      { name: "salmon", category: "protein", pairsWith: ["rice", "asparagus", "lemon", "dill", "potatoes"] },
+      { name: "tofu", category: "protein", pairsWith: ["rice", "broccoli", "soy sauce", "bell peppers", "carrots"] },
+      { name: "shrimp", category: "protein", pairsWith: ["pasta", "garlic", "lemon", "bell peppers"] },
+      { name: "eggs", category: "protein", pairsWith: ["cheese", "spinach", "tomatoes", "bell peppers", "onions"] },
+      
+      { name: "rice", category: "grain", pairsWith: ["chicken breast", "tofu", "salmon", "beans", "bell peppers"] },
+      { name: "pasta", category: "grain", pairsWith: ["ground beef", "chicken breast", "shrimp", "tomatoes", "garlic"] },
+      { name: "quinoa", category: "grain", pairsWith: ["chicken breast", "spinach", "chickpeas", "bell peppers"] },
+      { name: "potatoes", category: "starch", pairsWith: ["chicken breast", "ground beef", "cheese", "onions"] },
+      { name: "sweet potatoes", category: "starch", pairsWith: ["chicken breast", "black beans", "spinach"] },
+      
+      { name: "broccoli", category: "vegetable", pairsWith: ["chicken breast", "tofu", "garlic", "cheese"] },
+      { name: "spinach", category: "vegetable", pairsWith: ["chicken breast", "eggs", "garlic", "cheese"] },
+      { name: "bell peppers", category: "vegetable", pairsWith: ["chicken breast", "rice", "eggs", "onions"] },
+      { name: "carrots", category: "vegetable", pairsWith: ["chicken breast", "tofu", "peas", "onions"] },
+      { name: "asparagus", category: "vegetable", pairsWith: ["salmon", "lemon", "garlic"] },
+      { name: "tomatoes", category: "vegetable", pairsWith: ["pasta", "cheese", "garlic", "onions"] },
+      { name: "onions", category: "vegetable", pairsWith: ["ground beef", "potatoes", "bell peppers"] },
+      { name: "garlic", category: "vegetable", pairsWith: ["chicken breast", "pasta", "shrimp", "broccoli"] },
+      
+      { name: "cheese", category: "dairy", pairsWith: ["pasta", "eggs", "potatoes", "broccoli"] },
+      { name: "soy sauce", category: "condiment", pairsWith: ["tofu", "rice", "chicken breast"] },
+      { name: "lemon", category: "fruit", pairsWith: ["salmon", "shrimp", "asparagus"] },
+      { name: "chickpeas", category: "legume", pairsWith: ["quinoa", "spinach", "bell peppers"] },
+      { name: "black beans", category: "legume", pairsWith: ["rice", "sweet potatoes", "bell peppers"] },
+      { name: "dill", category: "herb", pairsWith: ["salmon", "potatoes"] },
+      { name: "olive oil", category: "oil", pairsWith: ["pasta", "salad", "vegetables"] },
+      { name: "peas", category: "vegetable", pairsWith: ["carrots", "rice", "potatoes"] }
+    ];
+
+    // Enhanced recipe database
+    const recipeDatabase = [
+      {
+        name: "Simple Chicken and Rice",
+        ingredients: ["chicken breast", "rice", "broccoli", "garlic", "olive oil"],
+        instructions: "1. Cook rice according to package directions.\n2. Season chicken breasts with salt and pepper.\n3. Heat olive oil in a pan and cook chicken breasts for 6-7 minutes on each side until done.\n4. Steam broccoli for 5 minutes.\n5. Sauté minced garlic in a bit of olive oil.\n6. Serve chicken over rice with broccoli on the side, topped with garlic."
+      },
+      {
+        name: "Spaghetti Bolognese",
+        ingredients: ["ground beef", "pasta", "tomatoes", "onions", "garlic", "olive oil"],
+        instructions: "1. Cook pasta according to package directions.\n2. Chop onions and mince garlic.\n3. Heat olive oil in a pan and sauté onions until translucent.\n4. Add garlic and cook for 1 minute.\n5. Add ground beef and cook until browned.\n6. Add tomatoes and simmer for 15-20 minutes.\n7. Serve sauce over pasta."
+      },
+      {
+        name: "Baked Salmon with Asparagus",
+        ingredients: ["salmon", "asparagus", "lemon", "dill", "olive oil"],
+        instructions: "1. Preheat oven to 400°F (200°C).\n2. Place salmon fillets on a baking sheet.\n3. Arrange asparagus around salmon.\n4. Drizzle everything with olive oil.\n5. Season with salt, pepper, and sprinkle with dill.\n6. Place lemon slices on top of the salmon.\n7. Bake for 12-15 minutes until salmon is cooked through.\n8. Serve immediately."
+      },
+      {
+        name: "Vegetable Stir-Fry with Tofu",
+        ingredients: ["tofu", "broccoli", "bell peppers", "carrots", "rice", "soy sauce", "garlic"],
+        instructions: "1. Cook rice according to package directions.\n2. Drain and press tofu, then cut into cubes.\n3. Chop broccoli, bell peppers, and carrots.\n4. Heat oil in a wok or large pan.\n5. Add tofu and cook until golden brown on all sides.\n6. Add vegetables and minced garlic, stir-fry for 5-7 minutes.\n7. Add soy sauce and continue cooking for 2 minutes.\n8. Serve over rice."
+      },
+      {
+        name: "Shrimp Scampi Pasta",
+        ingredients: ["shrimp", "pasta", "garlic", "lemon", "olive oil"],
+        instructions: "1. Cook pasta according to package directions.\n2. Heat olive oil in a large pan.\n3. Add minced garlic and cook for 1 minute.\n4. Add shrimp and cook until pink, about 2-3 minutes per side.\n5. Squeeze lemon juice over the shrimp.\n6. Toss with pasta and serve."
+      },
+      {
+        name: "Vegetable Frittata",
+        ingredients: ["eggs", "spinach", "bell peppers", "onions", "cheese"],
+        instructions: "1. Preheat oven to 350°F (175°C).\n2. Beat eggs in a bowl.\n3. Heat oil in an oven-safe pan.\n4. Sauté onions and bell peppers until soft.\n5. Add spinach and cook until wilted.\n6. Pour in eggs and sprinkle cheese on top.\n7. Cook on stovetop for 3-4 minutes.\n8. Transfer to oven and bake for 10-12 minutes until set.\n9. Slice and serve."
+      },
+      {
+        name: "Quinoa Bowl with Roasted Vegetables",
+        ingredients: ["quinoa", "sweet potatoes", "broccoli", "chickpeas", "olive oil"],
+        instructions: "1. Cook quinoa according to package directions.\n2. Preheat oven to 425°F (220°C).\n3. Cut sweet potatoes and broccoli into bite-sized pieces.\n4. Toss vegetables and chickpeas with olive oil, salt, and pepper.\n5. Roast for 20-25 minutes, stirring halfway through.\n6. Place quinoa in bowls and top with roasted vegetables and chickpeas."
+      },
+      {
+        name: "Loaded Baked Potatoes",
+        ingredients: ["potatoes", "cheese", "broccoli", "onions"],
+        instructions: "1. Preheat oven to 400°F (200°C).\n2. Wash and dry potatoes, then prick with a fork.\n3. Bake potatoes for 45-60 minutes until tender.\n4. Steam broccoli for 5 minutes.\n5. Sauté chopped onions until translucent.\n6. Split potatoes and top with cheese, broccoli, and onions.\n7. Return to oven for 5 minutes to melt cheese."
+      },
+      {
+        name: "Black Bean and Rice Bowl",
+        ingredients: ["black beans", "rice", "bell peppers", "onions", "garlic"],
+        instructions: "1. Cook rice according to package directions.\n2. Heat oil in a pan and sauté onions and bell peppers.\n3. Add minced garlic and cook for 1 minute.\n4. Add black beans and heat through.\n5. Season with salt, pepper, and your favorite spices.\n6. Serve beans and vegetables over rice."
+      }
+    ];
+
+    // DOM Elements
+    const inputEl = document.getElementById("ingredient-input");
+    const suggestionsEl = document.getElementById("suggestions");
+    const selectedIngredientsEl = document.getElementById("selected-ingredients");
+    const generateBtn = document.getElementById("generate-btn");
+    const clearBtn = document.getElementById("clear-btn");
+    const outputEl = document.getElementById("output");
+    const recipesContainerEl = document.getElementById("recipes-container");
+    const groceryListEl = document.getElementById("grocery-list");
+
+    // State
+    let selectedIngredients = [];
+
+    // Autocomplete function
+    inputEl.addEventListener("input", () => {
+      const input = inputEl.value.toLowerCase().trim();
+      suggestionsEl.innerHTML = "";
+
+      if (input.length < 2) {
+        suggestionsEl.style.display = "none";
+        return;
+      }
+
+      const matches = foodDatabase
+        .filter(item => item.name.includes(input) && !selectedIngredients.includes(item.name))
+        .slice(0, 5); // Limit to 5 suggestions
+
+      if (matches.length === 0) {
+        suggestionsEl.style.display = "none";
+        return;
+      }
+
+      matches.forEach(item => {
+        const div = document.createElement("div");
+        div.className = "suggestion-item";
+        div.textContent = item.name;
+        div.addEventListener("click", () => {
+          addIngredient(item.name);
+          inputEl.value = "";
+          suggestionsEl.style.display = "none";
+        });
+        suggestionsEl.appendChild(div);
+      });
+
+      suggestionsEl.style.display = "block";
+    });
+
+    // Hide suggestions when clicking outside
+    document.addEventListener("click", (e) => {
+      if (e.target !== inputEl && e.target !== suggestionsEl) {
+        suggestionsEl.style.display = "none";
+      }
+    });
+
+    // Add ingredient on Enter key
+    inputEl.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        const input = inputEl.value.toLowerCase().trim();
+        
+        if (input && !selectedIngredients.includes(input)) {
+          const match = foodDatabase.find(item => item.name === input);
+          if (match) {
+            addIngredient(input);
+          } else {
+            // If not an exact match, check for partial matches
+            const partialMatch = foodDatabase.find(item => item.name.includes(input));
+            if (partialMatch) {
+              addIngredient(partialMatch.name);
+            } else {
+              // Add custom ingredient if no matches found
+              addIngredient(input);
+            }
+          }
+        }
+        
+        inputEl.value = "";
+        suggestionsEl.style.display = "none";
+      }
+    });
+
+    // Add ingredient to selected list
+    function addIngredient(ingredient) {
+      if (selectedIngredients.includes(ingredient)) return;
+      
+      selectedIngredients.push(ingredient);
+      updateSelectedIngredientsUI();
+    }
+
+    // Remove ingredient from selected list
+    function removeIngredient(ingredient) {
+      selectedIngredients = selectedIngredients.filter(item => item !== ingredient);
+      updateSelectedIngredientsUI();
+    }
+
+    // Update UI for selected ingredients
+    function updateSelectedIngredientsUI() {
+      selectedIngredientsEl.innerHTML = "";
+      
+      selectedIngredients.forEach(ingredient => {
+        const tag = document.createElement("div");
+        tag.className = "tag";
+        tag.innerHTML = `${ingredient} <span class="remove">&times;</span>`;
+        
+        tag.querySelector(".remove").addEventListener("click", () => {
+          removeIngredient(ingredient);
+        });
+        
+        selectedIngredientsEl.appendChild(tag);
+      });
+    }
+
+    // Generate meal recommendations
+    generateBtn.addEventListener("click", () => {
+      if (selectedIngredients.length === 0) {
+        alert("Please add at least one ingredient first.");
+        return;
+      }
+      
+      generateMealRecommendations();
+    });
+
+    // Clear all ingredients
+    clearBtn.addEventListener("click", () => {
+      selectedIngredients = [];
+      updateSelectedIngredientsUI();
+      outputEl.style.display = "none";
+    });
+
+    // Generate meal recommendations based on selected ingredients
+    function generateMealRecommendations() {
+      // Sort recipes by number of matching ingredients (descending)
+      const sortedRecipes = recipeDatabase
+        .map(recipe => {
+          const matchingIngredients = recipe.ingredients.filter(ingredient => 
+            selectedIngredients.includes(ingredient)
+          );
+          
+          const missingIngredients = recipe.ingredients.filter(ingredient => 
+            !selectedIngredients.includes(ingredient)
+          );
+          
+          return {
+            ...recipe,
+            matchCount: matchingIngredients.length,
+            matchPercentage: matchingIngredients.length / recipe.ingredients.length,
+            matchingIngredients,
+            missingIngredients
+          };
+        })
+        .filter(recipe => recipe.matchCount > 0) // At least one ingredient should match
+        .sort((a, b) => {
+          // Sort by match percentage first, then by match count if percentage is the same
+          if (b.matchPercentage !== a.matchPercentage) {
+            return b.matchPercentage - a.matchPercentage;
+          }
+          return b.matchCount - a.matchCount;
+        })
+        .slice(0, 3); // Top 3 recommendations
+      
+      // Display results
+      displayRecipes(sortedRecipes);
+      generateGroceryList(sortedRecipes);
+      outputEl.style.display = "block";
+
+      // Scroll to results
+      outputEl.scrollIntoView({ behavior: "smooth" });
+    }
+
+    // Display recipe recommendations
+    function displayRecipes(recipes) {
+      recipesContainerEl.innerHTML = "<h2>Recipe Recommendations</h2>";
+      
+      if (recipes.length === 0) {
+        recipesContainerEl.innerHTML += `
+          <p>No matching recipes found. Try adding more ingredients or different combinations.</p>
+        `;
+        return;
+      }
+      
+      recipes.forEach(recipe => {
+        const recipeEl = document.createElement("div");
+        recipeEl.className = "recipe";
+        
+        // Calculate match percentage for display
+        const matchPercent = Math.round(recipe.matchPercentage * 100);
+        
+        recipeEl.innerHTML = `
+          <h3>${recipe.name} (${matchPercent}% match)</h3>
+          
+          <h4>Ingredients:</h4>
+          <ul>
+            ${recipe.ingredients.map(ingredient => {
+              const isAvailable = selectedIngredients.includes(ingredient);
+              return `<li${isAvailable ? '' : ' style="color: #e67e22;"'}>${ingredient}${isAvailable ? '' : ' (missing)'}</li>`;
+            }).join('')}
+          </ul>
+          
+          <h4>Instructions:</h4>
+          <div class="instructions">
+            ${recipe.instructions.replace(/\n/g, '<br>')}
+          </div>
+          
+          ${recipe.missingIngredients.length > 0 ? 
+            `<div class="missing">Missing ingredients: ${recipe.missingIngredients.join(', ')}</div>` : 
+            ''}
+        `;
+        
+        recipesContainerEl.appendChild(recipeEl);
+      });
+    }
+
+    // Generate grocery list from missing ingredients
+    function generateGroceryList(recipes) {
+      const allMissingIngredients = new Set();
+      
+      recipes.forEach(recipe => {
+        recipe.missingIngredients.forEach(ingredient => {
+          allMissingIngredients.add(ingredient);
+        });
+      });
+      
+      // Convert Set to Array for sorting
+      const groceryList = Array.from(allMissingIngredients);
+      
+      // Group by category if possible
+      const categorizedList = {};
+      
+      groceryList.forEach(ingredient => {
+        const dbIngredient = foodDatabase.find(item => item.name === ingredient);
+        const category = dbIngredient ? dbIngredient.category : "other";
+        
+        if (!categorizedList[category]) {
+          categorizedList[category] = [];
+        }
+        
+        categorizedList[category].push(ingredient);
+      });
+      
+      // Display grocery list
+      groceryListEl.innerHTML = "<h2>Grocery List</h2>";
+      
+      if (groceryList.length === 0) {
+        groceryListEl.innerHTML += "<p>You have all the ingredients you need!</p>";
+        return;
+      }
+      
+      Object.keys(categorizedList).sort().forEach(category => {
+        groceryListEl.innerHTML += `
+          <h4>${category.charAt(0).toUpperCase() + category.slice(1)}</h4>
+          <ul>
+            ${categorizedList[category].map(item => `<li>${item}</li>`).join('')}
+          </ul>
+        `;
+      });
+    }
+  </script>
+</body>
+</html>
